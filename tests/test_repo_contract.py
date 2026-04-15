@@ -43,6 +43,29 @@ class RepoContractTests(unittest.TestCase):
             text=True,
         )
 
+    def test_workload_boundary_contract(self):
+        base_kustomization = (ROOT / 'platform/kubernetes/base/kustomization.yaml').read_text()
+        workload_kustomization = (ROOT / 'platform/workloads/demo-app/manifests/kustomization.yaml').read_text()
+        workload_deployment = (ROOT / 'platform/workloads/demo-app/manifests/deployment.yaml').read_text()
+        workload_service = (ROOT / 'platform/workloads/demo-app/manifests/service.yaml').read_text()
+        workload_content = (ROOT / 'platform/workloads/demo-app/manifests/index.html').read_text()
+
+        self.assertIn('../../workloads/demo-app/manifests', base_kustomization)
+        self.assertIn('deployment.yaml', workload_kustomization)
+        self.assertIn('service.yaml', workload_kustomization)
+        self.assertIn('configMapGenerator', workload_kustomization)
+        self.assertIn('index.html', workload_kustomization)
+        self.assertIn('name: demo-app', workload_deployment)
+        self.assertIn('name: demo-app', workload_service)
+        self.assertIn('AI DevOps Cloud Toolkit', workload_content)
+
+        for rel in (
+            'platform/kubernetes/base/deployment.yaml',
+            'platform/kubernetes/base/service.yaml',
+            'platform/kubernetes/base/configmap.yaml',
+        ):
+            self.assertFalse((ROOT / rel).exists(), rel)
+
     def test_repo_check_passes(self):
         subprocess.run(
             ['python3', str(ROOT / 'scripts/repo_check.py')],

@@ -98,6 +98,14 @@ The core flow is:
 | `docs/examples/` | Example-only | Guidance for optional extensions |
 | `docs/roadmap.md` | Docs-only | Future depth beyond v1 |
 
+## Ownership boundary
+
+The approved follow-up lane keeps one stable user path while making ownership clearer:
+
+- `platform/workloads/demo-app/` is the single source of truth for demo workload-specific manifests and content
+- `platform/kubernetes/` assembles workload assets into the canonical deployment path and keeps `overlays/local-kind/` as the stable entrypoint
+- `platform/terraform/` continues to own only the shared demo foundation that runs before workload deployment
+
 ## Quick links
 
 - [Quickstart](docs/quickstart.md)
@@ -117,8 +125,8 @@ The core flow is:
 ├── scripts/               # bootstrap / validate / demo-up / demo-verify / demo-down
 ├── platform/
 │   ├── terraform/         # Live demo foundation
-│   ├── kubernetes/        # Live deployment composition + overlays
-│   ├── workloads/         # Demo workload assets and manifest source
+│   ├── kubernetes/        # Composition layer + local-kind overlay
+│   ├── workloads/         # Workload-owned manifests/content
 │   └── policies/          # Baseline policy guidance/config placeholders
 ├── examples/              # Example-only extensions
 └── .github/workflows/     # CI validation + smoke workflow scaffolding

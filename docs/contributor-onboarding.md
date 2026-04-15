@@ -26,6 +26,16 @@ These are shared contracts and should be treated carefully:
 
 If you change those, update docs and verification together.
 
+## Workload boundary rule
+
+For the live demo path:
+
+- make workload-specific changes under `platform/workloads/demo-app/`
+- treat `platform/kubernetes/` as the deployment composition and overlay layer
+- treat `platform/terraform/` as shared foundation only
+
+This keeps the approved path clear while preserving the same user-facing commands.
+
 ## Validation expectation
 
 Use:

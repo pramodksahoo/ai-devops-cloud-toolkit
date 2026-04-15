@@ -8,13 +8,14 @@ The toolkit deliberately separates concerns:
    - creates the live demo namespace and baseline RBAC/service account resources
    - gives Terraform a real role in the MVP without introducing cloud-account friction
 
-2. **Kubernetes deployment layer**
-   - composes workload-owned manifests into the Terraform-created namespace
-   - keeps runtime deployment assembly separate from workload ownership
+2. **Workload asset layer**
+   - keeps demo workload-specific manifests, config, and content under `platform/workloads/demo-app/`
+   - makes the demo workload the clear source of truth for runtime-specific assets
 
-3. **Workload runtime assets**
-   - `platform/workloads/demo-app/` owns the demo page content and workload manifest source
-   - keeps workload-specific changes close to the workload instead of scattering them across shared deployment folders
+3. **Kubernetes composition layer**
+   - assembles the workload into the Terraform-created namespace
+   - keeps `platform/kubernetes/overlays/local-kind/` as the canonical local deployment entrypoint
+   - keeps app deployment assembly separate from workload ownership and Terraform foundation
 
 4. **Scripts and workflow contract**
    - `bootstrap.sh` verifies the local environment
@@ -43,28 +44,30 @@ In the canonical story it manages a lightweight **demo foundation**:
 
 That keeps the toolkit credible as a platform starter while still remaining local-first and cloud-agnostic.
 
+## Workload ownership boundary
+
+The approved follow-up lane keeps the user-facing flow stable:
+
+```text
+bootstrap -> validate -> demo-up -> demo-verify -> demo-down
+```
+
+Inside the repo, ownership becomes more explicit:
+
+- `platform/workloads/demo-app/` owns workload-specific manifests, content, and workload notes
+- `platform/kubernetes/` owns composition, shared labels/conventions, and overlays such as `local-kind`
+- `platform/terraform/` owns shared foundation prerequisites that run before workload deployment
+
+That split makes it easier to extend the demo workload without drifting workload logic back into generic deployment folders, and it keeps workload-specific runtime assets discoverable in the workload directory.
+
 ## Why Kubernetes stays separate
 
-Kubernetes owns deployment composition concerns:
-- reusable composition in `platform/kubernetes/base/`
+Kubernetes manifests still own deployment assembly concerns:
+- composition of workload manifests into the live path
+- service exposure and environment wiring
 - overlays for local-kind
-- environment wiring around workload-owned manifests
 
-This makes it easy for contributors to extend app/runtime behavior without blurring infrastructure and workload responsibilities.
-
-## Why workload assets live under `platform/workloads/`
-
-The demo workload should be discoverable as a real workload, not just implied through Kubernetes base files.
-
-`platform/workloads/demo-app/` therefore owns:
-- demo content/config
-- workload-specific Deployment and Service manifest source
-- workload-specific extension notes
-
-This keeps the ownership boundary clear:
-- Terraform owns shared foundation
-- Kubernetes owns deployment assembly
-- workload directories own workload-specific runtime assets
+This makes it easy for contributors to extend app/runtime behavior without blurring workload, deployment, and infrastructure responsibilities.
 
 ## Directory intent
 
@@ -72,7 +75,7 @@ This keeps the ownership boundary clear:
 |---|---|
 | `platform/terraform/` | Live demo foundation |
 | `platform/kubernetes/` | Live deployment composition and overlays |
-| `platform/workloads/` | Demo app runtime assets and workload notes |
+| `platform/workloads/` | Workload-owned manifests, content, and notes |
 | `platform/policies/` | Baseline policy/security placeholders |
 | `examples/` | Example-only extensions |
 | `docs/examples/` | Example-only guidance |

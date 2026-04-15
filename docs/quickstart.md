@@ -69,6 +69,8 @@ The live path does the following:
 2. applies the Terraform-managed demo foundation
 3. deploys the demo workload with Kubernetes manifests
 
+The command stays stable even as workload assets live under `platform/workloads/demo-app/` and Kubernetes remains the composition layer.
+
 ## 5. Verify the demo
 
 ```bash

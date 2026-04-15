@@ -99,6 +99,7 @@ def check_kubernetes_contract() -> None:
     workload_deployment = (ROOT / 'platform/workloads/demo-app/manifests/deployment.yaml').read_text()
     workload_service = (ROOT / 'platform/workloads/demo-app/manifests/service.yaml').read_text()
     workload_kustomization = (ROOT / 'platform/workloads/demo-app/manifests/kustomization.yaml').read_text()
+    workload_content = (ROOT / 'platform/workloads/demo-app/manifests/index.html').read_text()
     workload_readme = (ROOT / 'platform/workloads/demo-app/README.md').read_text()
     architecture = (ROOT / 'docs/architecture.md').read_text()
 
@@ -113,6 +114,8 @@ def check_kubernetes_contract() -> None:
     ensure('name: demo-app' in workload_deployment, 'workload deployment must define demo-app')
     ensure('name: demo-app' in workload_service, 'workload service must define demo-app')
     ensure('configMapGenerator' in workload_kustomization, 'workload manifests must generate demo content config')
+    ensure('index.html' in workload_kustomization, 'workload manifests must source demo content from index.html')
+    ensure('AI DevOps Cloud Toolkit' in workload_content, 'workload content must retain the demo page identity')
     ensure('single source of truth' in workload_readme, 'workload README must explain workload ownership')
     ensure('workload-specific runtime assets' in architecture, 'architecture doc must explain workload ownership boundary')
 

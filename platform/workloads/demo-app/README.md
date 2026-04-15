@@ -7,20 +7,18 @@ It is simple on purpose:
 - easy to verify with a port-forward
 - easy to extend for workshops or examples
 
-## Ownership boundary
+## Ownership contract
 
-`platform/workloads/demo-app/` is the single source of truth for workload-specific runtime assets:
+This directory is the single source of truth for demo workload-specific assets.
 
-- `manifests/index.html` owns the demo page content
-- `manifests/` owns the `demo-app` Deployment, Service, and ConfigMap generation
+- keep workload manifests, config, and content here
+- use `platform/kubernetes/` to assemble those assets into the canonical deployment path
+- keep Terraform focused on shared foundation resources only
 
-`platform/kubernetes/` stays responsible for deployment composition and overlays:
+## Safe change guidance
 
-- `platform/kubernetes/base/` composes workload-owned manifests into the live runtime path
-- `platform/kubernetes/overlays/local-kind/` remains the canonical local-kind entrypoint used by `./scripts/demo-up.sh`
+When you update the live demo workload:
 
-## Safe ways to extend the demo
-
-- edit `manifests/index.html` when changing demo page content
-- edit `manifests/deployment.yaml` or `manifests/service.yaml` when changing workload runtime behavior
-- avoid reintroducing workload-specific manifest copies under `platform/kubernetes/base/`
+1. change workload-specific assets here first
+2. keep the canonical flow unchanged: `bootstrap -> validate -> demo-up -> demo-verify -> demo-down`
+3. only update `platform/kubernetes/` when composition or overlay wiring needs to change
