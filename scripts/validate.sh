@@ -16,7 +16,7 @@ run() {
 cd "$ROOT_DIR"
 
 run bash -n scripts/*.sh
-run ruby -e "require 'yaml'; Dir['.github/workflows/*.yml', 'platform/kubernetes/**/*.yaml', '.config/**/*.yml', '.config/**/*.yaml'].sort.each { |f| YAML.load_file(f) }"
+run ruby -e "require 'yaml'; Dir['.github/workflows/*.yml', 'platform/kubernetes/**/*.yaml', 'platform/workloads/**/*.yaml', '.config/**/*.yml', '.config/**/*.yaml'].sort.each { |f| YAML.load_file(f) }"
 run python3 scripts/repo_check.py
 run python3 -m unittest -v tests/test_repo_contract.py
 run kubectl kustomize platform/kubernetes/overlays/local-kind >/dev/null
@@ -49,11 +49,12 @@ run yamllint -c .config/yamllint.yml \
   .github/workflows \
   .config/checkov/checkov.yaml \
   .config/yamllint.yml \
-  platform/kubernetes
-run kubeconform -summary -strict \
-  platform/kubernetes/base/configmap.yaml \
-  platform/kubernetes/base/deployment.yaml \
-  platform/kubernetes/base/service.yaml
+  platform/kubernetes \
+  platform/workloads
+rendered_manifest="$(mktemp)"
+trap 'rm -f "$rendered_manifest"' EXIT
+kubectl kustomize platform/kubernetes/overlays/local-kind >"$rendered_manifest"
+run kubeconform -summary -strict "$rendered_manifest"
 run actionlint .github/workflows/*.yml
 
 printf '\nFull validation completed successfully.\n'

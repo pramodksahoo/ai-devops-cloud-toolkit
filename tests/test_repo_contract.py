@@ -18,20 +18,23 @@ class RepoContractTests(unittest.TestCase):
             self.assertTrue((ROOT / rel).exists(), rel)
 
     def test_kustomize_overlay_renders(self):
-        subprocess.run(
+        rendered = subprocess.run(
             ['kubectl', 'kustomize', str(ROOT / 'platform/kubernetes/overlays/local-kind')],
             check=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
         )
+        self.assertIn('kind: Deployment', rendered.stdout)
+        self.assertIn('name: demo-app', rendered.stdout)
+        self.assertIn('kind: ConfigMap', rendered.stdout)
 
     def test_yaml_files_parse(self):
         subprocess.run(
             [
                 'ruby',
                 '-e',
-                "require 'yaml'; Dir['.github/workflows/*.yml', 'platform/kubernetes/**/*.yaml', '.config/**/*.yml', '.config/**/*.yaml'].sort.each { |f| YAML.load_file(f) }",
+                "require 'yaml'; Dir['.github/workflows/*.yml', 'platform/kubernetes/**/*.yaml', 'platform/workloads/**/*.yaml', '.config/**/*.yml', '.config/**/*.yaml'].sort.each { |f| YAML.load_file(f) }",
             ],
             check=True,
             cwd=ROOT,

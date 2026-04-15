@@ -90,8 +90,8 @@ The core flow is:
 | Area | Status | Purpose |
 |---|---|---|
 | `platform/terraform/` | Live MVP | Terraform-managed demo foundation |
-| `platform/kubernetes/` | Live MVP | Kubernetes manifests and overlays |
-| `platform/workloads/demo-app/` | Live MVP | Demo workload assets |
+| `platform/kubernetes/` | Live MVP | Kubernetes composition and overlays |
+| `platform/workloads/demo-app/` | Live MVP | Demo workload manifest source and content |
 | `scripts/` | Live MVP | Canonical local workflow entrypoints |
 | `.github/workflows/` | Live MVP | Validation and smoke workflow scaffolding |
 | `examples/` | Example-only | Extra starter examples kept out of the happy path |
@@ -117,8 +117,8 @@ The core flow is:
 ├── scripts/               # bootstrap / validate / demo-up / demo-verify / demo-down
 ├── platform/
 │   ├── terraform/         # Live demo foundation
-│   ├── kubernetes/        # Live deployment manifests
-│   ├── workloads/         # Demo workload assets
+│   ├── kubernetes/        # Live deployment composition + overlays
+│   ├── workloads/         # Demo workload assets and manifest source
 │   └── policies/          # Baseline policy guidance/config placeholders
 ├── examples/              # Example-only extensions
 └── .github/workflows/     # CI validation + smoke workflow scaffolding
