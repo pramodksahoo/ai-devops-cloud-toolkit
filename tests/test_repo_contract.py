@@ -75,6 +75,36 @@ class RepoContractTests(unittest.TestCase):
             text=True,
         )
 
+    def test_provider_sample_contract(self):
+        provider_sample = (ROOT / 'examples/provider-sample/README.md').read_text()
+        provider_template = (ROOT / 'examples/provider-sample/providers/TEMPLATE.md').read_text()
+        provider_modules = (ROOT / 'examples/provider-sample/modules/README.md').read_text()
+        provider_manifests = (ROOT / 'examples/provider-sample/manifests/README.md').read_text()
+        provider_notes = (ROOT / 'examples/provider-sample/docs/extension-notes.md').read_text()
+        provider_guide = (ROOT / 'docs/examples/provider-sample.md').read_text()
+        examples_index = (ROOT / 'examples/README.md').read_text()
+        docs_examples_index = (ROOT / 'docs/examples/README.md').read_text()
+
+        self.assertIn('example-only', provider_sample.lower())
+        self.assertIn('officially supports a cloud provider', provider_sample)
+        self.assertIn('providers/', provider_sample)
+        self.assertIn('modules/', provider_sample)
+        self.assertIn('manifests/', provider_sample)
+        self.assertIn('docs/', provider_sample)
+
+        self.assertIn('future provider-oriented example', provider_template)
+        self.assertIn('example-only', provider_modules.lower())
+        self.assertIn('example-only', provider_manifests.lower())
+        self.assertIn('prompts/add-example.md', provider_notes)
+
+        self.assertIn('example-only', provider_guide.lower())
+        self.assertIn('prompts/add-example.md', provider_guide)
+        self.assertIn('canonical local-first path', provider_guide)
+        self.assertIn('platform/', provider_guide)
+
+        self.assertIn('provider-sample/', examples_index)
+        self.assertIn('provider-sample.md', docs_examples_index)
+
 
 if __name__ == '__main__':
     unittest.main()

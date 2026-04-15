@@ -48,9 +48,14 @@ EXAMPLE_ONLY_PATHS = [
     'examples/observability/README.md',
     'examples/gitops/README.md',
     'examples/provider-sample/README.md',
+    'examples/provider-sample/providers/TEMPLATE.md',
+    'examples/provider-sample/modules/README.md',
+    'examples/provider-sample/manifests/README.md',
+    'examples/provider-sample/docs/extension-notes.md',
     'docs/examples/helm/README.md',
     'docs/examples/observability/README.md',
     'docs/examples/gitops/README.md',
+    'docs/examples/provider-sample.md',
 ]
 
 
@@ -141,6 +146,24 @@ def check_workflow_contract() -> None:
     )
 
 
+def check_provider_sample_contract() -> None:
+    examples_index = (ROOT / 'examples/README.md').read_text()
+    docs_examples_index = (ROOT / 'docs/examples/README.md').read_text()
+    provider_sample = (ROOT / 'examples/provider-sample/README.md').read_text()
+    provider_guide = (ROOT / 'docs/examples/provider-sample.md').read_text()
+    extension_notes = (ROOT / 'examples/provider-sample/docs/extension-notes.md').read_text()
+
+    ensure('provider-sample/' in examples_index, 'examples index must link to the provider sample')
+    ensure('provider-sample.md' in docs_examples_index, 'docs examples index must link to the provider sample guide')
+    ensure('example-only' in provider_sample.lower(), 'provider sample README must be labeled example-only')
+    ensure('officially supports a cloud provider' in provider_sample, 'provider sample README must reject official provider support wording')
+    ensure('docs/examples/provider-sample.md' in provider_sample, 'provider sample README must point to the canonical provider sample guide')
+    ensure('prompts/add-example.md' in provider_guide, 'provider sample guide must reference prompts/add-example.md')
+    ensure('canonical local-first path' in provider_guide, 'provider sample guide must preserve the canonical path')
+    ensure('platform/' in provider_guide, 'provider sample guide must keep provider assets out of platform/')
+    ensure('prompts/add-example.md' in extension_notes, 'extension notes must reference prompts/add-example.md')
+
+
 def main() -> int:
     check_required_files()
     check_readme_contract()
@@ -148,6 +171,7 @@ def main() -> int:
     check_terraform_contract()
     check_kubernetes_contract()
     check_workflow_contract()
+    check_provider_sample_contract()
     print('Repository contract checks passed.')
     return 0
 
