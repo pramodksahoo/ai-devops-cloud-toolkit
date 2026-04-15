@@ -1,0 +1,16 @@
+.omx/
+.codex/*
+!.codex/agents/
+!.codex/agents/**
+!.codex/skills/
+!.codex/skills/**
+.codex/skills/.system/**
+!.codex/prompts/
+!.codex/prompts/**
+__pycache__/
+*.pyc
+.DS_Store
+.tools/
+platform/terraform/examples/local-demo/.terraform/
+platform/terraform/examples/local-demo/terraform.tfstate
+platform/terraform/examples/local-demo/terraform.tfstate.backup

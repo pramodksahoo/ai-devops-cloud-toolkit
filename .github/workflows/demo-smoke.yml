@@ -1,0 +1,55 @@
+name: demo-smoke
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'platform/**'
+      - 'scripts/**'
+      - '.github/workflows/demo-smoke.yml'
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: 'v1.30.0'
+
+      - name: Set up tflint
+        uses: terraform-linters/setup-tflint@v4
+
+      - name: Create kind cluster
+        uses: helm/kind-action@v1.10.0
+        with:
+          cluster_name: toolkit-demo
+          config: platform/kubernetes/overlays/local-kind/kind-config.yaml
+
+      - name: Install smoke dependencies
+        run: ./scripts/install-validation-tools.sh linux amd64
+
+      - name: Validate
+        run: ./scripts/validate.sh
+
+      - name: Demo up
+        run: ./scripts/demo-up.sh
+
+      - name: Demo verify
+        run: ./scripts/demo-verify.sh
+
+      - name: Demo down
+        if: always()
+        run: ./scripts/demo-down.sh
