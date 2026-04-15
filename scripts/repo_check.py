@@ -28,12 +28,15 @@ REQUIRED_FILES = [
     'scripts/install-validation-tools.sh',
     'platform/terraform/modules/demo-foundation/main.tf',
     'platform/terraform/examples/local-demo/main.tf',
+    'platform/kubernetes/base/README.md',
     'platform/kubernetes/base/kustomization.yaml',
-    'platform/kubernetes/base/deployment.yaml',
-    'platform/kubernetes/base/service.yaml',
-    'platform/kubernetes/base/configmap.yaml',
     'platform/kubernetes/overlays/local-kind/kustomization.yaml',
     'platform/kubernetes/overlays/local-kind/kind-config.yaml',
+    'platform/workloads/demo-app/README.md',
+    'platform/workloads/demo-app/manifests/kustomization.yaml',
+    'platform/workloads/demo-app/manifests/deployment.yaml',
+    'platform/workloads/demo-app/manifests/service.yaml',
+    'platform/workloads/demo-app/manifests/index.html',
     '.github/workflows/validate.yml',
     '.github/workflows/docs.yml',
     '.github/workflows/demo-smoke.yml',
@@ -91,10 +94,34 @@ def check_terraform_contract() -> None:
 
 
 def check_kubernetes_contract() -> None:
-    deployment = (ROOT / 'platform/kubernetes/base/deployment.yaml').read_text()
-    service = (ROOT / 'platform/kubernetes/base/service.yaml').read_text()
-    ensure('name: demo-app' in deployment, 'deployment must define demo-app')
-    ensure('name: demo-app' in service, 'service must define demo-app')
+    base_kustomization = (ROOT / 'platform/kubernetes/base/kustomization.yaml').read_text()
+    base_readme = (ROOT / 'platform/kubernetes/base/README.md').read_text()
+    workload_deployment = (ROOT / 'platform/workloads/demo-app/manifests/deployment.yaml').read_text()
+    workload_service = (ROOT / 'platform/workloads/demo-app/manifests/service.yaml').read_text()
+    workload_kustomization = (ROOT / 'platform/workloads/demo-app/manifests/kustomization.yaml').read_text()
+    workload_readme = (ROOT / 'platform/workloads/demo-app/README.md').read_text()
+    architecture = (ROOT / 'docs/architecture.md').read_text()
+
+    ensure(
+        '../../workloads/demo-app/manifests' in base_kustomization,
+        'kubernetes base must compose workload-owned manifests',
+    )
+    ensure(
+        'platform/workloads/demo-app/' in base_readme,
+        'kubernetes base README must explain workload ownership',
+    )
+    ensure('name: demo-app' in workload_deployment, 'workload deployment must define demo-app')
+    ensure('name: demo-app' in workload_service, 'workload service must define demo-app')
+    ensure('configMapGenerator' in workload_kustomization, 'workload manifests must generate demo content config')
+    ensure('single source of truth' in workload_readme, 'workload README must explain workload ownership')
+    ensure('workload-specific runtime assets' in architecture, 'architecture doc must explain workload ownership boundary')
+
+    for rel in (
+        'platform/kubernetes/base/deployment.yaml',
+        'platform/kubernetes/base/service.yaml',
+        'platform/kubernetes/base/configmap.yaml',
+    ):
+        ensure(not (ROOT / rel).exists(), f'kubernetes base must not own duplicate workload manifest: {rel}')
 
 
 def check_workflow_contract() -> None:
